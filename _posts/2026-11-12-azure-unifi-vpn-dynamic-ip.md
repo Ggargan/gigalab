@@ -21,7 +21,7 @@ The lab used:
 - FreeDNS / Afraid.org for DDNS
 - UniFi's Inadyn-based DDNS client
 
-> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example. The screenshots should come from the validated Azure and UniFi lab, but sensitive values must be blurred or replaced before publication.
+> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example.
 
 ### Generic values used throughout the article
 
@@ -43,20 +43,6 @@ The lab used:
 | Pre-shared key | `<YOUR-STRONG-PSK>` |
 
 The public IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation and examples.
-
-### Screenshot redaction standard
-
-For both Azure and UniFi screenshots:
-
-- blur subscription IDs, tenant IDs, resource IDs and account names;
-- blur real public IP addresses and replace them in captions with the documentation addresses;
-- blur the real DDNS hostname, FreeDNS UserID and e-mail address;
-- fully hide PSKs, passwords, update URLs and API/update keys;
-- keep product settings and field labels visible so the screenshot remains useful;
-- crop browser tabs, favorites, profile avatars and unrelated resources;
-- add a caption stating that sensitive values were redacted.
-
-> **Draft note:** image references below intentionally point to files that must be added under `assets/images/`. Until those files exist, GitHub Pages will show broken-image placeholders.
 
 ![End-to-end lab architecture]({{ '/assets/images/01-architecture.png' | relative_url }})
 *Figure 1. End-to-end architecture. Replace this placeholder with the final GigaLab architecture diagram.*
