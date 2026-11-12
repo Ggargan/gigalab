@@ -591,42 +591,9 @@ a {
     max-width: 100% !important;
   }
 }
-/* Clickable article images with zoom cursor */
-
-.article-image-link {
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  margin: 2rem auto 0.75rem;
-  cursor: zoom-in;
-  text-decoration: none;
-}
-
-.article-image-link img {
-  display: block !important;
-  width: auto !important;
-  max-width: 600px !important;
-  height: auto !important;
-  margin: 0 !important;
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(17, 35, 70, 0.10);
-}
-
-.article-image-link:hover img {
-  box-shadow: 0 16px 40px rgba(11, 92, 255, 0.20);
-}
-
-@media (max-width: 720px) {
-  .article-image-link {
-    width: 100%;
-  }
-
-  .article-image-link img {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-}
-/* Image lightbox */
+/* ========================================
+   Clickable article images
+   ======================================== */
 
 .article-image-link {
   display: block;
@@ -656,104 +623,105 @@ a {
 }
 
 
-/* Lightbox overlay */
+/* ========================================
+   Full screen image lightbox
+   ======================================== */
 
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+#image-lightbox {
+  position: fixed !important;
+  inset: 0 !important;
 
-  display: none;
-  align-items: center;
-  justify-content: center;
+  width: 100vw !important;
+  height: 100vh !important;
 
-  padding: 32px;
+  z-index: 999999 !important;
 
-  background: rgba(3, 8, 18, 0.94);
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 32px !important;
+  margin: 0 !important;
+
+  background: rgba(3, 8, 18, 0.96) !important;
   backdrop-filter: blur(8px);
 
+  overflow: hidden !important;
   cursor: zoom-out;
 }
 
-.lightbox.is-open {
-  display: flex;
+#image-lightbox.is-open {
+  display: flex !important;
 }
 
-
-/* Full-size image */
-
-.lightbox-image {
-  display: block;
+#image-lightbox .lightbox-image {
+  display: block !important;
 
   width: auto !important;
   height: auto !important;
 
-  max-width: 95vw !important;
-  max-height: 92vh !important;
+  max-width: 94vw !important;
+  max-height: 90vh !important;
 
-  margin: 0 !important;
+  margin: auto !important;
+  padding: 0 !important;
 
-  object-fit: contain;
+  object-fit: contain !important;
 
   border-radius: 12px;
 
   box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.55);
+    0 30px 90px rgba(0, 0, 0, 0.65);
 
   cursor: zoom-out;
 }
 
+#image-lightbox .lightbox-close {
+  position: absolute !important;
 
-/* Close button */
+  top: 20px !important;
+  right: 24px !important;
 
-.lightbox-close {
-  position: absolute;
+  z-index: 1000000 !important;
 
-  top: 22px;
-  right: 28px;
+  width: 46px;
+  height: 46px;
 
-  width: 44px;
-  height: 44px;
-
-  display: grid;
+  display: grid !important;
   place-items: center;
 
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
 
-  background: rgba(15, 23, 40, 0.9);
+  background: rgba(15, 23, 40, 0.92);
 
   color: white;
 
-  font-size: 28px;
+  font-size: 30px;
   line-height: 1;
 
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
 }
 
-.lightbox-close:hover {
+#image-lightbox .lightbox-close:hover {
   background: var(--accent);
-  transform: scale(1.06);
 }
 
-.lightbox-close:focus-visible {
+#image-lightbox .lightbox-close:focus-visible {
   outline: 3px solid var(--accent-2);
   outline-offset: 3px;
 }
 
-
-/* Stop page scrolling while viewing an image */
-
 body.lightbox-open {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 
-/* Mobile */
+/* ========================================
+   Responsive images / lightbox
+   ======================================== */
 
 @media (max-width: 720px) {
 
@@ -766,17 +734,17 @@ body.lightbox-open {
     max-width: 100% !important;
   }
 
-  .lightbox {
-    padding: 15px;
+  #image-lightbox {
+    padding: 15px !important;
   }
 
-  .lightbox-image {
-    max-width: 100% !important;
+  #image-lightbox .lightbox-image {
+    max-width: calc(100vw - 30px) !important;
     max-height: 90vh !important;
   }
 
-  .lightbox-close {
-    top: 12px;
-    right: 12px;
+  #image-lightbox .lightbox-close {
+    top: 12px !important;
+    right: 12px !important;
   }
 }
