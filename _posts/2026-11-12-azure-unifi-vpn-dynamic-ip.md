@@ -44,8 +44,16 @@ The lab used:
 
 The public IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation and examples.
 
-![End-to-end lab architecture]({{ '/assets/images/01-architecture.png' | relative_url }})
-*Figure 1. End-to-end architecture. Replace this placeholder with the final GigaLab architecture diagram.*
+<a href="{{ '/assets/images/01-architecture.png' | relative_url }}"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="article-image-link">
+  <img
+    src="{{ '/assets/images/01-architecture.png' | relative_url }}"
+    alt="Azure and UniFi Site-to-Site VPN architecture">
+</a>
+
+*Figure 1. End-to-end architecture for the Azure and UniFi Site-to-Site VPN with Dynamic DNS.*
 
 ## 1. Plan the networks
 
