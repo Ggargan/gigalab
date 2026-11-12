@@ -49,3 +49,35 @@ body {
   max-width: 100%;
   overflow-x: auto;
 }
+/* GigaLab article media */
+
+.post.container {
+  width: min(840px, calc(100% - 40px));
+  max-width: 840px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prose {
+  width: 100%;
+  max-width: 840px;
+  min-width: 0;
+}
+
+.prose img {
+  display: block !important;
+  width: auto !important;
+  max-width: 600px !important;
+  height: auto !important;
+  margin: 2rem auto 0.75rem !important;
+  border-radius: 12px;
+}
+
+.prose img + em {
+  display: block;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
