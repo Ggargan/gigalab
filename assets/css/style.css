@@ -591,3 +591,38 @@ a {
     max-width: 100% !important;
   }
 }
+/* Clickable article images with zoom cursor */
+
+.article-image-link {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 2rem auto 0.75rem;
+  cursor: zoom-in;
+  text-decoration: none;
+}
+
+.article-image-link img {
+  display: block !important;
+  width: auto !important;
+  max-width: 600px !important;
+  height: auto !important;
+  margin: 0 !important;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(17, 35, 70, 0.10);
+}
+
+.article-image-link:hover img {
+  box-shadow: 0 16px 40px rgba(11, 92, 255, 0.20);
+}
+
+@media (max-width: 720px) {
+  .article-image-link {
+    width: 100%;
+  }
+
+  .article-image-link img {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
