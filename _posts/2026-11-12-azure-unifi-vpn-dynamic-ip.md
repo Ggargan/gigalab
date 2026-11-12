@@ -15,23 +15,22 @@ The lab used:
 
 - UniFi UCG Ultra with PPPoE and a dynamic public IPv4 address
 - UniFi LAN: `192.168.10.0/24`
-- Azure VNet: `10.10.0.0/16`
+- Azure hub VNet: `10.0.0.0/16`
 - Azure VPN Gateway
 - Azure Local Network Gateway using an FQDN
 - FreeDNS / Afraid.org for DDNS
 - UniFi's Inadyn-based DDNS client
 
-> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example.
-
+> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example. 
 ### Generic values used throughout the article
 
 | Item | Documentation value |
 |---|---|
-| Resource group | `rg-gigalab-vpn` |
-| Azure VNet | `vnet-gigalab` |
-| Azure VNet address space | `10.10.0.0/16` |
-| GatewaySubnet | `10.10.0.0/27` |
-| Azure workload subnet | `10.10.1.0/24` |
+| Resource group | `rg-gigalab-network` |
+| Azure hub VNet | `hub-vnet-gigalab` |
+| Azure hub VNet address space | `10.0.0.0/16` |
+| GatewaySubnet | `10.0.0.0/27` |
+| Azure workload subnet | `10.0.1.0/24` |
 | UniFi LAN | `192.168.10.0/24` |
 | Azure VPN Gateway | `vpng-gigalab` |
 | Azure VPN public IP example | `198.51.100.10` |
@@ -43,6 +42,8 @@ The lab used:
 | Pre-shared key | `<YOUR-STRONG-PSK>` |
 
 The public IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation and examples.
+
+The Azure VNet is deliberately named `hub-vnet-gigalab`. The first article uses it only as the VPN landing zone, but the naming leaves room to evolve the same lab into a hub-and-spoke topology and, later, compare that design with Azure Virtual WAN.
 
 <a href="{{ '/assets/images/01-architecture.png' | relative_url }}"
    class="article-image-link"
@@ -62,17 +63,25 @@ The two sides must use non-overlapping address spaces.
 | Side | Address space |
 |---|---|
 | UniFi LAN | `192.168.10.0/24` |
-| Azure VNet | `10.10.0.0/16` |
-| Azure workload subnet | `10.10.1.0/24` |
+| Azure hub VNet | `10.0.0.0/16` |
+| Azure workload subnet | `10.0.1.0/24` |
 
 On Azure, review the VNet and its subnets before creating the gateway.
 
-![Azure VNet address space]({{ '/assets/images/02-azure-vnet.png' | relative_url }})
-*Figure 2. Azure VNet address space and workload subnet(s).*
+<a href="{{ '/assets/images/02-azure-vnet.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open Azure hub VNet address space screenshot">
+  <img
+    src="{{ '/assets/images/02-azure-vnet.png' | relative_url }}"
+    alt="Azure hub virtual network address space configuration">
+</a>
 
-## 2. Create or prepare the Azure VNet and GatewaySubnet
+*Figure 2. Address space of the Azure hub virtual network used as the VPN landing zone. Sensitive identifiers have been redacted.*
 
-If the VNet does not already exist, create it first. Then create a dedicated subnet named exactly:
+## 2. Create or prepare the Azure hub VNet and GatewaySubnet
+
+Create or reuse the documentation hub VNet, `hub-vnet-gigalab`. Then create a dedicated subnet named exactly:
 
 ```text
 GatewaySubnet
@@ -83,9 +92,9 @@ GatewaySubnet
 For this documentation-only example, use the following subnet plan:
 
 ```text
-VNet:             10.10.0.0/16
-GatewaySubnet:    10.10.0.0/27
-Workload subnet:  10.10.1.0/24
+Hub VNet:         10.0.0.0/16
+GatewaySubnet:    10.0.0.0/27
+Workload subnet:  10.0.1.0/24
 ```
 
 ![Azure GatewaySubnet]({{ '/assets/images/03-gateway-subnet.png' | relative_url }})
@@ -175,7 +184,7 @@ The peer relationship is:
 UniFi                                     Azure
 -----                                     -----
 WAN1 / PPPoE public IP  <------------>    VPN Gateway public IP
-192.168.10.0/24          <------------>    10.10.0.0/16
+192.168.10.0/24          <------------>    10.0.0.0/16
 ```
 
 Configure:
@@ -199,7 +208,7 @@ Both peers must use mutually compatible settings. Azure can use its default prop
 | PFS | Must be supported and matched by both peers |
 | IKE lifetime | Keep compatible on both peers |
 | IPsec/Quick Mode lifetime | Keep compatible on both peers |
-| Remote networks | `10.10.0.0/16` |
+| Remote networks | `10.0.0.0/16` |
 | Remote peer | Azure VPN Gateway public IP |
 
 ![UniFi Site-to-Site settings]({{ '/assets/images/08-unifi-s2s.png' | relative_url }})
@@ -223,7 +232,7 @@ Remote IP / Host: 198.51.100.10
 
 Test between actual endpoints behind each gateway, not just between the gateways themselves.
 
-For validation, deploy or use a test workload in `10.10.1.0/24`, for example `10.10.1.4`.
+For validation, deploy or use a test workload in `10.0.1.0/24`, for example `10.0.1.4`.
 
 ![UniFi tunnel established]({{ '/assets/images/10-unifi-established.png' | relative_url }})
 *Figure 10. UniFi reporting the Azure IPsec tunnel as Established.*
@@ -518,7 +527,8 @@ That makes it much easier to distinguish a DDNS authentication failure from an A
 
 ## References
 
-- Microsoft Learn, **Tutorial: Create a site-to-site VPN connection in the Azure portal**
-- Microsoft Learn, **Azure VPN Gateway documentation**
-- Ubiquiti Help Center, **UniFi Gateway - Site-to-Site IPsec VPN with Third-Party Gateways (Advanced)**
-- Ubiquiti Help Center, **UniFi Gateway - Dynamic DNS**
+- [Microsoft Learn - Tutorial: Create a site-to-site VPN connection in the Azure portal](https://learn.microsoft.com/en-us/azure/vpn-gateway/tutorial-site-to-site-portal)
+- [Microsoft Learn - What is Azure VPN Gateway?](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways)
+- [Ubiquiti Help Center - UniFi Gateway: Site-to-Site IPsec VPN with Third-Party Gateways (Advanced)](https://help.ui.com/hc/en-us/articles/7983431932439-UniFi-Gateway-Site-to-Site-IPsec-VPN-with-Third-Party-Gateways-Advanced)
+- [Ubiquiti Help Center - UniFi Gateway: Dynamic DNS](https://help.ui.com/hc/en-us/articles/9203184738583-UniFi-Gateway-Dynamic-DNS)
+
