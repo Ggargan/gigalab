@@ -96,19 +96,9 @@ Hub VNet:         10.0.0.0/16
 GatewaySubnet:    10.0.0.0/27
 Workload subnet:  10.0.1.0/24
 ```
-<a href="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}"
-   class="article-image-link"
-   data-lightbox
-   aria-label="Open Azure hub VNet subnet configuration">
+<a href="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure hub VNet subnet configuration screenshot"><img src="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}" alt="Azure hub virtual network subnet configuration"></a>
 
-  <img
-    src="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}"
-    alt="Azure hub VNet subnet configuration showing GatewaySubnet and workload subnet">
-
-</a>
-
-*Figure 3. Subnet layout of the Azure hub VNet, with GatewaySubnet `10.0.0.0/27` separated from the workload subnet `10.0.1.0/24`.*
-
+*Figure 3. Subnet layout of the Azure hub VNet, separating the VPN gateway infrastructure from application workloads.*
 
 ## 3. Deploy Azure VPN Gateway
 
