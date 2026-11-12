@@ -45,9 +45,9 @@ The lab used:
 The public IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation and examples.
 
 <a href="{{ '/assets/images/01-architecture.png' | relative_url }}"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="article-image-link">
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open architecture diagram">
   <img
     src="{{ '/assets/images/01-architecture.png' | relative_url }}"
     alt="Azure and UniFi Site-to-Site VPN architecture">
