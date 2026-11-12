@@ -1,0 +1,16 @@
+title: GigaLab
+tagline: Cloud, hybrid infrastructure & real-world troubleshooting
+description: Hands-on labs, architectures and lessons learned across Azure, hybrid cloud, networking and security.
+url: "https://ggargan.github.io"
+baseurl: "/gigalab"
+author:
+  name: Giovanni Garganese
+  role: Cloud Solution Architect
+  github: Ggargan
+markdown: kramdown
+permalink: /:categories/:title/
+future: true
+plugins:
+  - jekyll-feed
+exclude:
+  - README.md

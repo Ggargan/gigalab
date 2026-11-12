@@ -1,0 +1,46 @@
+---
+layout: default
+title:
+---
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Notes from the field</div>
+      <h1>Cloud, hybrid infrastructure<br><span>&amp; real-world troubleshooting.</span></h1>
+      <p class="hero-copy">Hands-on experiments, architectures and lessons learned from building and troubleshooting real-world cloud and hybrid infrastructure.</p>
+      <div class="topic-list" aria-label="Topics">
+        <span>Azure</span><span>Azure Local</span><span>Networking</span><span>Security</span>
+      </div>
+    </div>
+    <aside class="lab-card" aria-label="GigaLab focus">
+      <div class="status"><span></span> LAB ONLINE</div>
+      <div class="terminal">
+        <p><b>$</b> build --validate</p>
+        <p class="muted">architecture... passed</p>
+        <p class="muted">configuration... passed</p>
+        <p class="success">troubleshooting... documented</p>
+      </div>
+    </aside>
+  </div>
+</section>
+<section class="container section">
+  <div class="section-heading">
+    <div><div class="eyebrow">Latest</div><h2>From the lab</h2></div>
+    <a href="{{ '/feed.xml' | relative_url }}">RSS feed</a>
+  </div>
+  <div class="posts-grid">
+    {% for post in site.posts %}
+    <article class="post-card">
+      <div class="post-card-top">
+        <span>{{ post.categories | first | default: "Lab" }}</span>
+        <time>{{ post.date | date: "%b %-d, %Y" }}</time>
+      </div>
+      <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+      <p>{{ post.description | default: post.excerpt | strip_html | truncate: 180 }}</p>
+      <a class="read-more" href="{{ post.url | relative_url }}">Read article <span>→</span></a>
+    </article>
+    {% else %}
+    <div class="empty-state">The first lab note is being prepared.</div>
+    {% endfor %}
+  </div>
+</section>
