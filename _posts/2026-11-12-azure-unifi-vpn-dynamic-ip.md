@@ -21,7 +21,8 @@ The lab used:
 - FreeDNS / Afraid.org for DDNS
 - UniFi's Inadyn-based DDNS client
 
-> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example. 
+> **Privacy note:** every resource name, network prefix, public IP, hostname, identifier and secret shown below is a documentation-only example.
+
 ### Generic values used throughout the article
 
 | Item | Documentation value |
@@ -43,16 +44,9 @@ The lab used:
 
 The public IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are reserved for documentation and examples.
 
-The Azure VNet is deliberately named `hub-vnet-gigalab`. The first article uses it only as the VPN landing zone, but the naming leaves room to evolve the same lab into a hub-and-spoke topology and, later, compare that design with Azure Virtual WAN.
+The Azure VNet is deliberately named `hub-vnet-gigalab`. This first article uses it as the VPN landing zone, while leaving room to evolve the same GigaLab environment into a hub-and-spoke topology and later compare that design with Azure Virtual WAN.
 
-<a href="{{ '/assets/images/01-architecture.png' | relative_url }}"
-   class="article-image-link"
-   data-lightbox
-   aria-label="Open architecture diagram">
-  <img
-    src="{{ '/assets/images/01-architecture.png' | relative_url }}"
-    alt="Azure and UniFi Site-to-Site VPN architecture">
-</a>
+<a href="{{ '/assets/images/01-architecture.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open architecture diagram"><img src="{{ '/assets/images/01-architecture.png' | relative_url }}" alt="Azure and UniFi Site-to-Site VPN architecture"></a>
 
 *Figure 1. End-to-end architecture for the Azure and UniFi Site-to-Site VPN with Dynamic DNS.*
 
@@ -68,14 +62,7 @@ The two sides must use non-overlapping address spaces.
 
 On Azure, review the VNet and its subnets before creating the gateway.
 
-<a href="{{ '/assets/images/02-azure-vnet.png' | relative_url }}"
-   class="article-image-link"
-   data-lightbox
-   aria-label="Open Azure hub VNet address space screenshot">
-  <img
-    src="{{ '/assets/images/02-azure-vnet.png' | relative_url }}"
-    alt="Azure hub virtual network address space configuration">
-</a>
+<a href="{{ '/assets/images/02-azure-vnet.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure hub VNet address space screenshot"><img src="{{ '/assets/images/02-azure-vnet.png' | relative_url }}" alt="Azure hub virtual network address space configuration"></a>
 
 *Figure 2. Address space of the Azure hub virtual network used as the VPN landing zone. Sensitive identifiers have been redacted.*
 
@@ -96,28 +83,30 @@ Hub VNet:         10.0.0.0/16
 GatewaySubnet:    10.0.0.0/27
 Workload subnet:  10.0.1.0/24
 ```
+
 <a href="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure hub VNet subnet configuration screenshot"><img src="{{ '/assets/images/03-gateway-subnet.png' | relative_url }}" alt="Azure hub virtual network subnet configuration"></a>
 
 *Figure 3. Subnet layout of the Azure hub VNet, separating the VPN gateway infrastructure from application workloads.*
 
 ## 3. Deploy Azure VPN Gateway
 
-Create a **Virtual network gateway** and associate it with the lab VNet.
+Create a **Virtual network gateway** and associate it with the hub VNet.
 
 The key design choices are:
 
 ```text
-Gateway type: VPN
-VPN type:     Route-based
-Virtual network: <lab VNet>
-Public IP example: 198.51.100.10
+Gateway type:        VPN
+VPN type:            Route-based
+Virtual network:     hub-vnet-gigalab
+Public IP example:   198.51.100.10
 ```
 
 The public IP of Azure VPN Gateway becomes the remote peer configured on the UCG. In this article, `198.51.100.10` is used as a documentation-only example.
 
-For the article, select an Azure VPN Gateway SKU appropriate to the expected throughput, availability and feature requirements. The example deliberately avoids exposing the SKU used in the private lab.
+Select an Azure VPN Gateway SKU appropriate to the expected throughput, availability and feature requirements. The example deliberately avoids exposing the SKU used in the private lab.
 
-![Azure VPN Gateway overview]({{ '/assets/images/04-azure-vpn-gateway.png' | relative_url }})
+<a href="{{ '/assets/images/04-azure-vpn-gateway.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure VPN Gateway screenshot"><img src="{{ '/assets/images/04-azure-vpn-gateway.png' | relative_url }}" alt="Azure VPN Gateway overview"></a>
+
 *Figure 4. Azure VPN Gateway overview with gateway type, VPN type, SKU and public IP.*
 
 ## 4. Create the DDNS hostname
@@ -132,8 +121,9 @@ vpn.example.com
 
 At this point the record only needs to exist. Automatic updates from the UCG are configured later.
 
-![FreeDNS record]({{ '/assets/images/05-freedns-record.png' | relative_url }})
-*Figure 5. FreeDNS Dynamic DNS record. Never expose its Direct URL/update key.*
+<a href="{{ '/assets/images/05-freedns-record.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open FreeDNS record screenshot"><img src="{{ '/assets/images/05-freedns-record.png' | relative_url }}" alt="FreeDNS Dynamic DNS record"></a>
+
+*Figure 5. FreeDNS Dynamic DNS record. Never expose its Direct URL or update key.*
 
 ## 5. Create the Azure Local Network Gateway with an FQDN
 
@@ -142,14 +132,15 @@ Create a **Local network gateway** representing the UniFi location.
 Use the DDNS name as the peer endpoint and the LAN behind the UCG as the remote address space:
 
 ```text
-Endpoint type: FQDN
-FQDN:         vpn.example.com
-Address space: 192.168.10.0/24
+Endpoint type:  FQDN
+FQDN:           vpn.example.com
+Address space:  192.168.10.0/24
 ```
 
 This is the central design choice. Azure continues to refer to the same hostname even if the ISP changes the UCG public IP.
 
-![Azure Local Network Gateway]({{ '/assets/images/06-local-network-gateway.png' | relative_url }})
+<a href="{{ '/assets/images/06-local-network-gateway.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure Local Network Gateway screenshot"><img src="{{ '/assets/images/06-local-network-gateway.png' | relative_url }}" alt="Azure Local Network Gateway configured with an FQDN"></a>
+
 *Figure 6. Azure Local Network Gateway configured with the DDNS FQDN and the generic UniFi LAN prefix.*
 
 ## 6. Create the Azure Site-to-Site connection
@@ -157,15 +148,16 @@ This is the central design choice. Azure continues to refer to the same hostname
 Create a connection between the Azure VPN Gateway and the Local Network Gateway.
 
 ```text
-Connection type:          Site-to-site (IPsec)
-Virtual network gateway:  <Azure VPN Gateway>
-Local network gateway:    <UniFi Local Network Gateway>
-Shared key (PSK):          <strong secret>
+Connection type:           Site-to-site (IPsec)
+Virtual network gateway:   <Azure VPN Gateway>
+Local network gateway:     <UniFi Local Network Gateway>
+Shared key (PSK):           <YOUR-STRONG-PSK>
 ```
 
 Store the PSK securely. The exact same value is configured on UniFi.
 
-![Azure S2S connection]({{ '/assets/images/07-azure-connection.png' | relative_url }})
+<a href="{{ '/assets/images/07-azure-connection.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure Site-to-Site connection screenshot"><img src="{{ '/assets/images/07-azure-connection.png' | relative_url }}" alt="Azure Site-to-Site VPN connection configuration"></a>
+
 *Figure 7. Azure Site-to-Site connection. The shared key must be fully redacted.*
 
 ## 7. Configure the IPsec Site-to-Site VPN on the UCG
@@ -196,14 +188,14 @@ Configure:
 
 ### Configure a generic, matching IPsec proposal
 
-Both peers must use mutually compatible settings. Azure can use its default proposal set for broad interoperability, or you can configure one explicit custom policy on the Azure connection. If a custom policy is used, Azure requires the complete IKE and IPsec parameter set, and the UCG must support and match it. Do not publish private-lab values merely for completeness:
+Both peers must use mutually compatible settings. Azure can use its default proposal set for broad interoperability, or you can configure an explicit custom policy on the Azure connection. If a custom policy is used, the UCG must support and match the selected parameters.
 
-| Setting | Validated lab value |
+| Setting | Documentation guidance |
 |---|---|
 | VPN mode | Route-based on both Azure and UniFi |
 | IKE version | IKEv2 |
-| Encryption | Azure default proposals, or one explicitly documented matching custom policy |
-| Integrity/hash | Azure default proposals, or one explicitly documented matching custom policy |
+| Encryption | Azure default proposals, or an explicitly documented matching custom policy |
+| Integrity/hash | Azure default proposals, or an explicitly documented matching custom policy |
 | DH group | Must be supported and matched by both peers |
 | PFS | Must be supported and matched by both peers |
 | IKE lifetime | Keep compatible on both peers |
@@ -211,11 +203,13 @@ Both peers must use mutually compatible settings. Azure can use its default prop
 | Remote networks | `10.0.0.0/16` |
 | Remote peer | Azure VPN Gateway public IP |
 
-![UniFi Site-to-Site settings]({{ '/assets/images/08-unifi-s2s.png' | relative_url }})
+<a href="{{ '/assets/images/08-unifi-s2s.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open UniFi Site-to-Site VPN screenshot"><img src="{{ '/assets/images/08-unifi-s2s.png' | relative_url }}" alt="UniFi Site-to-Site VPN configuration"></a>
+
 *Figure 8. UniFi Site-to-Site VPN configuration.*
 
-![UniFi IPsec advanced settings]({{ '/assets/images/09-unifi-ipsec-advanced.png' | relative_url }})
-*Figure 9. Working IKE/ESP proposal. Redact the PSK.*
+<a href="{{ '/assets/images/09-unifi-ipsec-advanced.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open UniFi IPsec advanced settings screenshot"><img src="{{ '/assets/images/09-unifi-ipsec-advanced.png' | relative_url }}" alt="UniFi IPsec advanced settings"></a>
+
+*Figure 9. IKE and IPsec settings used to establish interoperability. Redact the PSK and any sensitive identifiers.*
 
 ## 8. Establish the tunnel and test connectivity first
 
@@ -224,9 +218,9 @@ Before adding DDNS automation, verify that the basic IPsec tunnel works.
 UniFi should report the tunnel as:
 
 ```text
-Status: Established
-VPN Type: IPsec
-Interface: WAN1
+Status:           Established
+VPN Type:         IPsec
+Interface:        WAN1
 Remote IP / Host: 198.51.100.10
 ```
 
@@ -234,10 +228,12 @@ Test between actual endpoints behind each gateway, not just between the gateways
 
 For validation, deploy or use a test workload in `10.0.1.0/24`, for example `10.0.1.4`.
 
-![UniFi tunnel established]({{ '/assets/images/10-unifi-established.png' | relative_url }})
+<a href="{{ '/assets/images/10-unifi-established.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open UniFi established tunnel screenshot"><img src="{{ '/assets/images/10-unifi-established.png' | relative_url }}" alt="UniFi Site-to-Site VPN established status"></a>
+
 *Figure 10. UniFi reporting the Azure IPsec tunnel as Established.*
 
-![Azure connection connected]({{ '/assets/images/11-azure-connected.png' | relative_url }})
+<a href="{{ '/assets/images/11-azure-connected.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Azure connected VPN screenshot"><img src="{{ '/assets/images/11-azure-connected.png' | relative_url }}" alt="Azure Site-to-Site VPN connected status"></a>
+
 *Figure 11. Azure reporting the Site-to-Site connection as Connected.*
 
 ## 9. Configure Dynamic DNS on UniFi
@@ -254,7 +250,8 @@ Server:    empty
 
 The important detail from this lab is that the working username was the **FreeDNS UserID**, not the e-mail address associated with the account.
 
-![UniFi DDNS settings]({{ '/assets/images/12-unifi-ddns.png' | relative_url }})
+<a href="{{ '/assets/images/12-unifi-ddns.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open UniFi Dynamic DNS screenshot"><img src="{{ '/assets/images/12-unifi-ddns.png' | relative_url }}" alt="UniFi Dynamic DNS configuration for FreeDNS Afraid"></a>
+
 *Figure 12. Working UniFi Afraid/FreeDNS DDNS settings. Redact password and account identifiers.*
 
 ## 10. Troubleshooting: DDNS did not update after reboot
@@ -291,7 +288,8 @@ provider afraid:1 {
 
 > **Security warning:** the generated file can expose the DDNS password in clear text. Never publish an unredacted output.
 
-![Inadyn configuration]({{ '/assets/images/13-inadyn-config.png' | relative_url }})
+<a href="{{ '/assets/images/13-inadyn-config.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open sanitized Inadyn configuration screenshot"><img src="{{ '/assets/images/13-inadyn-config.png' | relative_url }}" alt="Sanitized Inadyn runtime configuration"></a>
+
 *Figure 13. Sanitized Inadyn runtime configuration.*
 
 ### Read the Inadyn logs
@@ -309,7 +307,8 @@ Update forced for alias vpn.example.com, new IP# 203.0.113.10
 
 This isolated the failure nicely. PPPoE was up, Inadyn was running, the new address was detected and an update was attempted. Authentication was the failing layer.
 
-![Inadyn authentication error]({{ '/assets/images/14-inadyn-auth-error.png' | relative_url }})
+<a href="{{ '/assets/images/14-inadyn-auth-error.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open Inadyn authentication error screenshot"><img src="{{ '/assets/images/14-inadyn-auth-error.png' | relative_url }}" alt="Inadyn Could not authenticate error"></a>
+
 *Figure 14. The `Could not authenticate` error, sanitized for publication.*
 
 ## 11. Root cause: FreeDNS UserID vs e-mail address
@@ -327,10 +326,12 @@ Updating IPv4 cache for vpn.example.com
 
 No custom Server/Update URL was required in the working UniFi configuration.
 
-![FreeDNS account fields]({{ '/assets/images/15-freedns-userid.png' | relative_url }})
+<a href="{{ '/assets/images/15-freedns-userid.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open FreeDNS account fields screenshot"><img src="{{ '/assets/images/15-freedns-userid.png' | relative_url }}" alt="FreeDNS UserID and email fields"></a>
+
 *Figure 15. FreeDNS exposes UserID separately from e-mail. Redact both real values.*
 
-![Successful Inadyn update]({{ '/assets/images/16-inadyn-success.png' | relative_url }})
+<a href="{{ '/assets/images/16-inadyn-success.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open successful Inadyn update screenshot"><img src="{{ '/assets/images/16-inadyn-success.png' | relative_url }}" alt="Successful Inadyn Dynamic DNS update"></a>
+
 *Figure 16. Successful Inadyn update after correcting the UserID.*
 
 ## 12. Definitive recovery test
@@ -372,9 +373,10 @@ Updating IPv4 cache for vpn.example.com
 Resolve-DnsName vpn.example.com
 ```
 
-The A record matched the new PPPoE public IP. In the test, the FreeDNS answer had a TTL of 60 seconds.
+The A record matched the new PPPoE public IP. In the test, the FreeDNS answer had a TTL of 60 seconds. Tunnel recovery can take longer than the DNS TTL because it also depends on DNS re-resolution, IKE retry timers and IPsec renegotiation.
 
-![DNS after reboot]({{ '/assets/images/17-dns-after-reboot.png' | relative_url }})
+<a href="{{ '/assets/images/17-dns-after-reboot.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open DNS resolution screenshot"><img src="{{ '/assets/images/17-dns-after-reboot.png' | relative_url }}" alt="DNS resolution after the UCG public IP changed"></a>
+
 *Figure 17. FQDN resolving to the new public IPv4 address after reboot.*
 
 ### Step 5: verify IPsec recovery
@@ -389,7 +391,8 @@ Interface:        WAN1
 Remote IP / Host: 198.51.100.10
 ```
 
-![Recovered VPN]({{ '/assets/images/18-vpn-recovered.png' | relative_url }})
+<a href="{{ '/assets/images/18-vpn-recovered.png' | relative_url }}" class="article-image-link" data-lightbox aria-label="Open recovered VPN screenshot"><img src="{{ '/assets/images/18-vpn-recovered.png' | relative_url }}" alt="UniFi Site-to-Site VPN recovered after the public IP changed"></a>
+
 *Figure 18. The Site-to-Site VPN recovered using the newly assigned PPPoE public IP.*
 
 I repeated the reboot **a second time**. The VPN recovered again without manually changing either Azure or UniFi.
@@ -531,4 +534,3 @@ That makes it much easier to distinguish a DDNS authentication failure from an A
 - [Microsoft Learn - What is Azure VPN Gateway?](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways)
 - [Ubiquiti Help Center - UniFi Gateway: Site-to-Site IPsec VPN with Third-Party Gateways (Advanced)](https://help.ui.com/hc/en-us/articles/7983431932439-UniFi-Gateway-Site-to-Site-IPsec-VPN-with-Third-Party-Gateways-Advanced)
 - [Ubiquiti Help Center - UniFi Gateway: Dynamic DNS](https://help.ui.com/hc/en-us/articles/9203184738583-UniFi-Gateway-Dynamic-DNS)
-
