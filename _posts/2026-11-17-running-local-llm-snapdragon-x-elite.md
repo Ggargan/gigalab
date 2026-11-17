@@ -1,5 +1,5 @@
 ---
-posted:false
+published:false
 layout: post
 title: "Running a Local LLM on a Snapdragon X Elite Windows PC"
 date: 2026-11-17
