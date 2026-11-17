@@ -34,11 +34,26 @@ The goal is not simply to prove that a model can start. The objective is to dete
 
 ## 1. Test environment
 
-### 1.1 Hardware baseline
+Before installing an LLM runtime or downloading a model, we captured a hardware baseline of the test system. This baseline will later allow us to compare CPU, memory, GPU and NPU utilization during model loading and inference.
+
+### 1.1 Hardware overview
+
+The test system is a Microsoft Surface Laptop, 7th Edition based on the Qualcomm Snapdragon X Elite platform. It combines a 12-core ARM64 processor, 64 GB of LPDDR5 memory, an integrated Qualcomm Adreno GPU and a dedicated Qualcomm Hexagon NPU.
+
+<a href="{{ '/assets/images/local-llm/01-hardware-overview.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open Snapdragon X Elite hardware overview screenshot">
+  <img src="{{ '/assets/images/local-llm/01-hardware-overview.png' | relative_url }}"
+       alt="Windows System About page showing the Snapdragon X Elite processor, 64 GB RAM, Qualcomm Adreno GPU and NVMe storage"
+       class="article-image">
+</a>
+
+*Figure 1 - Hardware overview of the Snapdragon X Elite test system.*
 
 | Component | Configuration |
 |---|---|
-| System model | `[TO COMPLETE]` |
+| Device | Microsoft Surface Laptop, 7th Edition |
 | CPU | Qualcomm Snapdragon X Elite X1E80100 |
 | CPU cores | 12 |
 | Architecture | ARM64 |
@@ -47,49 +62,144 @@ The goal is not simply to prove that a model can start. The objective is to dete
 | GPU | Qualcomm Adreno X1-85 |
 | NPU | Qualcomm Hexagon |
 | Storage | Approximately 1 TB NVMe SSD |
-| Power mode | `[Battery / Balanced / Best performance]` |
-| Power source during tests | `[Battery / AC]` |
+| Operating system | Windows 11 ARM64 |
 
-### 1.2 Software baseline
+### 1.2 CPU baseline
+
+The Snapdragon X Elite X1E80100 exposes 12 cores and 12 logical processors to Windows. Before starting the inference tests, CPU utilization was captured to establish an idle baseline.
+
+<a href="{{ '/assets/images/local-llm/02-cpu-baseline.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open Snapdragon X Elite CPU baseline screenshot">
+  <img src="{{ '/assets/images/local-llm/02-cpu-baseline.png' | relative_url }}"
+       alt="Windows Task Manager CPU view showing the 12-core Snapdragon X Elite X1E80100 processor before LLM inference"
+       class="article-image">
+</a>
+
+*Figure 2 - Snapdragon X Elite CPU baseline before loading a local LLM.*
+
+During the baseline capture, Windows reported:
+
+- 12 cores;
+- 12 logical processors;
+- a base frequency of approximately 3.42 GHz;
+- virtualization enabled.
+
+The same Task Manager view will be captured while an LLM is actively generating tokens.
+
+### 1.3 Memory baseline
+
+Memory capacity is particularly important for local LLM inference, especially for quantized models that would not normally fit into the dedicated VRAM of a consumer GPU. The test system contains 64 GB of LPDDR5 memory running at 8448 MT/s.
+
+<a href="{{ '/assets/images/local-llm/03-memory-baseline.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open system memory baseline screenshot">
+  <img src="{{ '/assets/images/local-llm/03-memory-baseline.png' | relative_url }}"
+       alt="Windows Task Manager showing 64 GB LPDDR5 memory running at 8448 MT/s before local LLM testing"
+       class="article-image">
+</a>
+
+*Figure 3 - System memory baseline before loading the LLM runtime.*
+
+This screenshot will later be compared with memory consumption while:
+
+1. the runtime is idle;
+2. a model is loaded;
+3. the model is actively generating tokens.
+
+### 1.4 Storage baseline
+
+The system uses an NVMe SSD with approximately 954 GB of usable capacity. Local models can consume several gigabytes or tens of gigabytes depending on parameter count and quantization, so storage capacity is also relevant to the lab.
+
+<a href="{{ '/assets/images/local-llm/04-storage-baseline.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open NVMe storage baseline screenshot">
+  <img src="{{ '/assets/images/local-llm/04-storage-baseline.png' | relative_url }}"
+       alt="Windows Task Manager storage view showing the NVMe SSD used to store local LLM models"
+       class="article-image">
+</a>
+
+*Figure 4 - NVMe storage used for the local LLM environment.*
+
+The actual disk footprint of each downloaded model will be recorded later in the experiment.
+
+### 1.5 Qualcomm Adreno GPU baseline
+
+The Snapdragon X Elite platform includes an integrated Qualcomm Adreno X1-85 GPU. Unlike a traditional discrete GPU with dedicated VRAM, Windows exposes shared system memory to the integrated GPU.
+
+<a href="{{ '/assets/images/local-llm/05-gpu-baseline.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open Qualcomm Adreno GPU baseline screenshot">
+  <img src="{{ '/assets/images/local-llm/05-gpu-baseline.png' | relative_url }}"
+       alt="Windows Task Manager showing Qualcomm Adreno X1-85 GPU utilization and shared GPU memory before LLM inference"
+       class="article-image">
+</a>
+
+*Figure 5 - Qualcomm Adreno X1-85 GPU baseline before LLM inference.*
+
+Windows reports up to approximately 47.5 GB of shared GPU memory. This does not by itself mean that an LLM runtime can use that memory efficiently or that inference will automatically be accelerated by the Adreno GPU. GPU acceleration will therefore be treated as an experimental result rather than an assumption.
+
+### 1.6 Qualcomm Hexagon NPU baseline
+
+The Snapdragon X Elite also includes a dedicated Qualcomm Hexagon NPU. The presence of an NPU does not automatically mean that a generic LLM runtime can use it, so NPU utilization was captured before running any local model.
+
+<a href="{{ '/assets/images/local-llm/06-npu-baseline.png' | relative_url }}"
+   class="article-image-link"
+   data-lightbox
+   aria-label="Open Qualcomm Hexagon NPU baseline screenshot">
+  <img src="{{ '/assets/images/local-llm/06-npu-baseline.png' | relative_url }}"
+       alt="Windows Task Manager showing Qualcomm Snapdragon X Elite NPU utilization before local LLM inference"
+       class="article-image">
+</a>
+
+*Figure 6 - Qualcomm Hexagon NPU baseline before starting local LLM inference.*
+
+At baseline, Task Manager reported essentially no active NPU compute workload. During inference, the same view will be captured again and compared with this baseline.
+
+Task Manager activity alone will not be considered definitive proof of NPU offloading. Where possible, runtime logs or backend diagnostics will also be used to identify the hardware performing inference.
+
+### 1.7 Software and ARM64 baseline
+
+The Windows System About page confirms that the laptop is running a 64-bit operating system on an ARM-based processor. The complete system-information screenshot has been retained separately and will be added to this section as `07-system-info.png` after the Windows build information has been finalized for publication.
 
 | Component | Version |
 |---|---|
-| Windows edition | `[TO COMPLETE]` |
-| Windows version | `[TO COMPLETE]` |
+| Windows edition | Windows 11 Enterprise |
+| Windows version | 26H2 |
+| System type | 64-bit operating system, ARM-based processor |
 | OS build | `[TO COMPLETE]` |
 | Runtime | `[TO COMPLETE]` |
 | Runtime version | `[TO COMPLETE]` |
-| GPU driver | `[TO COMPLETE]` |
-| NPU driver | `[TO COMPLETE]` |
+| GPU driver | 31.0.133.1 |
+| NPU driver | 30.0.220.3000 |
 
-### 1.3 Baseline screenshots
+### 1.8 Baseline test record
 
-- `01-cpu-baseline.png`
-- `02-memory-baseline.png`
-- `03-storage-baseline.png`
-- `04-gpu-baseline.png`
-- `05-npu-baseline.png`
+| Test condition | Value |
+|---|---|
+| Date and time | `[TO COMPLETE]` |
+| Power source | `[Battery / AC]` |
+| Windows power mode | `[TO COMPLETE]` |
+| Applications running | `[TO COMPLETE]` |
+| Available memory before testing | `[TO COMPLETE]` |
+| Notes | `[TO COMPLETE]` |
 
-```html
-<!-- Replace PLACEHOLDER with the correct image and alt text. -->
-<a href="{{ '/assets/images/local-llm/PLACEHOLDER.png' | relative_url }}"
-   class="article-image-link"
-   data-lightbox
-   aria-label="Open test environment screenshot">
-  <img src="{{ '/assets/images/local-llm/PLACEHOLDER.png' | relative_url }}"
-       alt="PLACEHOLDER"
-       class="article-image">
-</a>
-```
+### 1.9 Why capture a baseline?
 
-### Test record
+These screenshots establish the **before** state of the experiment. The same measurements will be repeated during sustained inference.
 
-- **Date and time:** `[TO COMPLETE]`
-- **Battery or AC:** `[TO COMPLETE]`
-- **Windows power mode:** `[TO COMPLETE]`
-- **Applications running:** `[TO COMPLETE]`
-- **Available memory before testing:** `[TO COMPLETE]`
-- **Notes:** `[TO COMPLETE]`
+| Resource | Baseline | During inference |
+|---|---|---|
+| CPU | Figure 2 | To be measured |
+| Memory | Figure 3 | To be measured |
+| Adreno GPU | Figure 5 | To be measured |
+| Hexagon NPU | Figure 6 | To be measured |
+
+This provides a consistent way to distinguish between hardware that is merely available to Windows and hardware that is actually exercised by the selected LLM runtime.
 
 ---
 
